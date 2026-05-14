@@ -7,6 +7,8 @@ struct EditGoalView: View {
 
     @State private var name: String = ""
     @State private var targetText: String = ""
+    @State private var productLink: String = ""
+    @State private var photoData: Data?
     @State private var hasDeadline = false
     @State private var targetDate = Date()
     @State private var notes: String = ""
@@ -16,18 +18,52 @@ struct EditGoalView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Goal") {
-                    TextField("Name", text: $name)
-                    TextField("Target amount", text: $targetText)
-                        .keyboardType(.decimalPad)
+                Section {
+                    TextField("Name this goal", text: $name)
+                } header: {
+                    Text("Name")
+                } footer: {
+                    Text("What you’re saving for.")
                 }
-                Section("Optional") {
+
+                Section {
+                    TextField("Amount to save", text: $targetText)
+                        .keyboardType(.decimalPad)
+                } header: {
+                    Text("Savings target")
+                } footer: {
+                    Text("Must be at least what you’ve already saved.")
+                }
+
+                Section {
+                    GoalPhotoPickerBlock(photoData: $photoData)
+                } header: {
+                    Text("Photo")
+                } footer: {
+                    Text("Picture of the item you want.")
+                }
+
+                Section {
+                    TextField("https://…", text: $productLink)
+                        .textContentType(.URL)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                } header: {
+                    Text("Product link")
+                } footer: {
+                    Text("Store or product page. https:// is optional.")
+                }
+
+                Section {
                     Toggle("Target date", isOn: $hasDeadline)
                     if hasDeadline {
                         DatePicker("Date", selection: $targetDate, displayedComponents: .date)
                     }
                     TextField("Notes", text: $notes, axis: .vertical)
                         .lineLimit(3 ... 8)
+                } header: {
+                    Text("Optional")
                 }
             }
             .navigationTitle("Edit goal")
@@ -35,6 +71,8 @@ struct EditGoalView: View {
             .onAppear {
                 name = goal.name
                 targetText = AppCurrency.editingString(for: goal.targetAmount)
+                productLink = goal.productLink
+                photoData = goal.photoData
                 hasDeadline = goal.targetDate != nil
                 targetDate = goal.targetDate ?? Date()
                 notes = goal.notes
@@ -77,6 +115,8 @@ struct EditGoalView: View {
         }
         goal.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         goal.targetAmount = target
+        goal.productLink = productLink.trimmingCharacters(in: .whitespacesAndNewlines)
+        goal.photoData = photoData
         goal.targetDate = hasDeadline ? targetDate : nil
         goal.notes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
         dismiss()

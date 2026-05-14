@@ -35,10 +35,10 @@ struct ContentView: View {
             Group {
                 if goals.isEmpty {
                     ContentUnavailableView(
-                        "Start a savings goal",
+                        "Start a new goal",
                         systemImage: "banknote",
                         description: Text(
-                            "Name what you want, set a target, then add money as you go. Your progress stays on this device."
+                            "Give it a name, set how much you need to save, and add a photo plus a link to the item you want."
                         )
                     )
                 } else {

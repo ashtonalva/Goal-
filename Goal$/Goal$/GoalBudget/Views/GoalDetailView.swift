@@ -1,7 +1,9 @@
 import SwiftUI
+import UIKit
 
 struct GoalDetailView: View {
     @Bindable var goal: SavingsGoal
+    @Environment(\.openURL) private var openURL
     @State private var contributionText = ""
     @State private var withdrawText = ""
     @State private var showingEdit = false
@@ -12,6 +14,34 @@ struct GoalDetailView: View {
 
     var body: some View {
         List {
+            if goal.photoData != nil || goal.productURL != nil {
+                Section {
+                    VStack(alignment: .leading, spacing: 12) {
+                        if let data = goal.photoData, let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 200)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .accessibilityLabel("Photo of item")
+                        }
+                        if let url = goal.productURL {
+                            Button {
+                                openURL(url)
+                            } label: {
+                                Label("Open product link", systemImage: "safari")
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 10)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.teal)
+                        }
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                }
+            }
+
             Section {
                 VStack(spacing: 16) {
                     GoalProgressRing(fraction: goal.progressFraction, lineWidth: 14, size: 160)

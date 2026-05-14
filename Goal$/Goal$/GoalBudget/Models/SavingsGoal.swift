@@ -9,13 +9,18 @@ final class SavingsGoal {
     var createdAt: Date
     var targetDate: Date?
     var notes: String
+    /// User-pasted product page URL (may omit https://).
+    var productLink: String
+    @Attribute(.externalStorage) var photoData: Data?
 
     init(
         name: String,
         targetAmount: Decimal,
         savedAmount: Decimal = 0,
         targetDate: Date? = nil,
-        notes: String = ""
+        notes: String = "",
+        productLink: String = "",
+        photoData: Data? = nil
     ) {
         self.name = name
         self.targetAmount = targetAmount
@@ -23,6 +28,8 @@ final class SavingsGoal {
         self.createdAt = Date()
         self.targetDate = targetDate
         self.notes = notes
+        self.productLink = productLink
+        self.photoData = photoData
     }
 
     /// 0...1 for progress UI
@@ -39,5 +46,9 @@ final class SavingsGoal {
 
     var isComplete: Bool {
         progressFraction >= 1
+    }
+
+    var productURL: URL? {
+        ProductLinkHelpers.openableURL(from: productLink)
     }
 }

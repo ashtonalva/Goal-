@@ -1,12 +1,12 @@
 import SwiftUI
+import UIKit
 
 struct GoalRowView: View {
     let goal: SavingsGoal
 
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
-            GoalProgressRing(fraction: goal.progressFraction, lineWidth: 5, size: 52)
-                .accessibilityHidden(true)
+            itemVisual
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
@@ -38,9 +38,34 @@ struct GoalRowView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
+
+                if goal.productURL != nil {
+                    Label("Has link", systemImage: "link")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
             }
             Spacer(minLength: 0)
         }
         .padding(.vertical, 6)
+    }
+
+    @ViewBuilder
+    private var itemVisual: some View {
+        if let data = goal.photoData, let image = UIImage(data: data) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 56, height: 56)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(.quaternary, lineWidth: 1)
+                }
+                .accessibilityLabel("Item photo")
+        } else {
+            GoalProgressRing(fraction: goal.progressFraction, lineWidth: 5, size: 52)
+                .accessibilityHidden(true)
+        }
     }
 }
