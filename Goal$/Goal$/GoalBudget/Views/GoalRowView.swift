@@ -4,32 +4,44 @@ import UIKit
 struct GoalRowView: View {
     let goal: SavingsGoal
 
+    private var percentLabel: String {
+        "\(Int((goal.progressFraction * 100).rounded()))%"
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             itemVisual
 
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .firstTextBaseline) {
                     Text(goal.name)
                         .font(.headline)
                         .foregroundStyle(.primary)
-                    if goal.isComplete {
-                        Text("Done")
-                            .font(.caption2.weight(.semibold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(.green.opacity(0.2))
-                            .foregroundStyle(.green)
-                            .clipShape(Capsule())
-                    }
+                        .lineLimit(2)
+                    Spacer(minLength: 8)
+                    Text(percentLabel)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(AppTheme.accent)
+                        .monospacedDigit()
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(AppTheme.accent.opacity(0.15))
+                        .clipShape(Capsule())
+                }
+
+                if goal.isComplete {
+                    Label("Funded", systemImage: "checkmark.seal.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(AppTheme.accent)
                 }
 
                 ProgressView(value: goal.progressFraction)
-                    .tint(.teal)
+                    .tint(AppTheme.accent)
+                    .animation(AppMotion.progressBar, value: goal.progressFraction)
 
                 HStack(spacing: 4) {
                     Text(goal.savedAmount, format: .currency(code: AppCurrency.code))
-                        .font(.subheadline.weight(.medium))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Text("of")
                         .font(.caption)
@@ -40,31 +52,31 @@ struct GoalRowView: View {
                 }
 
                 if goal.productURL != nil {
-                    Label("Has link", systemImage: "link")
-                        .font(.caption2)
+                    Label("Product link", systemImage: "link.circle.fill")
+                        .font(.caption2.weight(.medium))
                         .foregroundStyle(.tertiary)
                 }
             }
-            Spacer(minLength: 0)
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder
     private var itemVisual: some View {
-        if let data = goal.photoData, let image = UIImage(data: data) {
+        if let data = goal.photoData, let image = GoalImageCache.uiImage(for: data) {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFill()
-                .frame(width: 56, height: 56)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCornerSmall, style: .continuous))
                 .overlay {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .strokeBorder(.quaternary, lineWidth: 1)
+                    RoundedRectangle(cornerRadius: AppTheme.cardCornerSmall, style: .continuous)
+                        .strokeBorder(Color.primary.opacity(0.06), lineWidth: 1)
                 }
                 .accessibilityLabel("Item photo")
         } else {
-            GoalProgressRing(fraction: goal.progressFraction, lineWidth: 5, size: 52)
+            GoalProgressRing(fraction: goal.progressFraction, lineWidth: 5, size: 56, showGlow: false)
                 .accessibilityHidden(true)
         }
     }

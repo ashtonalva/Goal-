@@ -72,10 +72,17 @@ struct AddGoalView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
+                        .fontWeight(.semibold)
                         .disabled(!canSave)
                 }
             }
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
+        .scrollContentBackground(.hidden)
+        .background(AppTheme.screenBackground())
+        .scrollDismissesKeyboard(.interactively)
+        .keyboardDismissToolbar()
     }
 
     private var parsedTarget: Decimal? {
@@ -99,7 +106,10 @@ struct AddGoalView: View {
             productLink: productLink.trimmingCharacters(in: .whitespacesAndNewlines),
             photoData: photoData
         )
-        modelContext.insert(goal)
+        withAnimation(AppMotion.modelUpdate) {
+            modelContext.insert(goal)
+        }
+        Haptics.medium()
         dismiss()
     }
 }

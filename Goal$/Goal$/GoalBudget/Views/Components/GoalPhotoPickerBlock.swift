@@ -10,13 +10,17 @@ struct GoalPhotoPickerBlock: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let photoData, let image = UIImage(data: photoData) {
+            if let photoData, let image = GoalImageCache.uiImage(for: photoData) {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
                     .frame(maxWidth: .infinity)
                     .frame(height: 160)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cardCornerSmall, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: AppTheme.cardCornerSmall, style: .continuous)
+                            .strokeBorder(Color.primary.opacity(0.08), lineWidth: 1)
+                    }
                     .accessibilityLabel("Photo of item preview")
 
                 Button("Remove photo", role: .destructive) {
@@ -31,7 +35,7 @@ struct GoalPhotoPickerBlock: View {
                         .padding(.vertical, 12)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.teal)
+                .tint(AppTheme.accent)
             }
         }
         .onChange(of: pickerItem) { _, item in
@@ -41,6 +45,7 @@ struct GoalPhotoPickerBlock: View {
                     let prepared = GoalPhotoProcessing.prepareForStorage(data)
                     await MainActor.run {
                         photoData = prepared
+                        Haptics.light()
                     }
                 }
             }

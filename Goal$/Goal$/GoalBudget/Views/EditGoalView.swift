@@ -83,6 +83,7 @@ struct EditGoalView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
+                        .fontWeight(.semibold)
                         .disabled(!canSave)
                 }
             }
@@ -91,7 +92,13 @@ struct EditGoalView: View {
             } message: {
                 Text(validationMessage)
             }
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
+        .scrollContentBackground(.hidden)
+        .background(AppTheme.screenBackground())
+        .scrollDismissesKeyboard(.interactively)
+        .keyboardDismissToolbar()
     }
 
     private var parsedTarget: Decimal? {
@@ -113,12 +120,15 @@ struct EditGoalView: View {
             showValidationAlert = true
             return
         }
-        goal.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        goal.targetAmount = target
-        goal.productLink = productLink.trimmingCharacters(in: .whitespacesAndNewlines)
-        goal.photoData = photoData
-        goal.targetDate = hasDeadline ? targetDate : nil
-        goal.notes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        withAnimation(AppMotion.modelUpdate) {
+            goal.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            goal.targetAmount = target
+            goal.productLink = productLink.trimmingCharacters(in: .whitespacesAndNewlines)
+            goal.photoData = photoData
+            goal.targetDate = hasDeadline ? targetDate : nil
+            goal.notes = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        Haptics.medium()
         dismiss()
     }
 }
